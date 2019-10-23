@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>rqt_my_plugin</name>
+  <name>my_plugin</name>
   <version>0.0.0</version>
-  <description>The rqt_my_plugin package</description>
+  <description>The my_plugin package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
@@ -52,12 +52,14 @@
   <build_depend>rospy</build_depend>
   <build_depend>rqt_gui</build_depend>
   <build_depend>rqt_gui_py</build_depend>
+  <build_depend>message_generation</build_depend>
   <build_export_depend>rospy</build_export_depend>
   <build_export_depend>rqt_gui</build_export_depend>
   <build_export_depend>rqt_gui_py</build_export_depend>
   <exec_depend>rospy</exec_depend>
   <exec_depend>rqt_gui</exec_depend>
   <exec_depend>rqt_gui_py</exec_depend>
+  <exec_depend>message_runtime</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

@@ -1,11 +1,14 @@
 import os
 import rospy
 import rospkg
+from std_msgs.msg import String
 
 from qt_gui.plugin import Plugin
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Qt, Slot
 from python_qt_binding.QtWidgets import QWidget
+
+from my_plugin.srv import AddTwoInts, AddTwoIntsResponse
 
 class MyPlugin(Plugin):
 
@@ -29,7 +32,7 @@ class MyPlugin(Plugin):
         # Create QWidget
         self._widget = QWidget()
         # Get path to UI file which should be in the "resource" folder of this package
-        ui_file = os.path.join(rospkg.RosPack().get_path('rqt_my_plugin'), 'resource', 'MyPlugin.ui')
+        ui_file = os.path.join(rospkg.RosPack().get_path('my_plugin'), 'resource', 'MyPlugin.ui')
         # Extend the widget with all attributes and children from UI file
         loadUi(ui_file, self._widget)
         # Give QObjects reasonable names
@@ -48,13 +51,54 @@ class MyPlugin(Plugin):
         # Add widget to the user interface
         context.add_widget(self._widget)
 
+        # Simple topic publisher from ROS tutorial.
+        self.rosPub = rospy.Publisher('my_plugin_pub', String, queue_size=10)
+        self.rosPubCount = 0
+
+        # Simple topic subscriber.
+        self.rosSub = rospy.Subscriber("my_plugin_sub", String, self.ros_string_handler)
+
+        # Start simple ROS server.
+        self.rosSrv = rospy.Service("add_two_ints", AddTwoInts, self.handle_add_two_ints)
+
+    def ros_string_handler(self, data):
+        rospy.loginfo(rospy.get_caller_id() + ": Subscriber receives %s", data.data)
+
+    def handle_add_two_ints(self, req):
+        rospy.loginfo( "Returning [%s + %s = %s]" % (req.a, req.b, (req.a + req.b)) )
+        return AddTwoIntsResponse(req.a + req.b)
+
     @Slot()
     def on_button_test_clicked(self):
-        print("button_test gets clicked.")
+        rospy.loginfo("button_test gets clicked. Send request to itself.")
+
+        self.rosPub.publish("rosPubCount = %d. " % (self.rosPubCount))
+        self.rosPubCount += 1
+
+        # Send service request.
+        try:
+            rospy.wait_for_service("add_two_ints", timeout=5)
+
+            # Set the actual request.
+            add_two_ints = rospy.ServiceProxy('add_two_ints', AddTwoInts)
+            resp = add_two_ints(self.rosPubCount, 100)
+
+            rospy.loginfo("add_two_ints responses with %d. " % ( resp.sum ))
+        except rospy.ROSException as e:
+            rospy.loginfo("Service add_two_ints unavailable for 5 seconds.")
+        except rospy.ServiceException as e:
+            rospy.logerr("Service request to add_two_ints failed.")
 
     def shutdown_plugin(self):
         # TODO unregister all publishers here
-        pass
+        self.rosSrv.shutdown()
+        rospy.loginfo("rosSrv shutdown. ")
+
+        self.rosSub.unregister()
+        rospy.loginfo("rosSub unregistered. ")
+
+        self.rosPub.unregister()
+        rospy.loginfo("rosPub unregistered. ")
 
     def save_settings(self, plugin_settings, instance_settings):
         # TODO save intrinsic configuration, usually using:

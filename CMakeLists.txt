@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(rqt_my_plugin)
+project(my_plugin)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -11,6 +11,8 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   rqt_gui
   rqt_gui_py
+  std_msgs
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -53,12 +55,11 @@ catkin_python_setup()
 #   Message2.msg
 # )
 
-## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+# Generate services in the 'srv' folder
+add_service_files(
+  FILES
+  AddTwoInts.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -67,11 +68,11 @@ catkin_python_setup()
 #   Action2.action
 # )
 
-## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
+# Generate added messages and services with any dependencies listed here
+generate_messages(
+  DEPENDENCIES
+  std_msgs  # Or other packages containing msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -106,7 +107,7 @@ catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES rqt_my_plugin
 #  CATKIN_DEPENDS rospy rqt_gui rqt_gui_py
-#  DEPENDS system_lib
+#  DEPENDS message_runtime
 )
 
 ###########
@@ -160,7 +161,7 @@ include_directories(
 # Mark executable scripts (Python etc.) for installation
 # in contrast to setup.py, you can choose the destination
 install(PROGRAMS
-  scripts/qrt_my_plugin
+  scripts/my_plugin
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

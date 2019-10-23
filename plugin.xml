@@ -1,5 +1,5 @@
 <library path="src">
-  <class name="My plugin" type="rqt_my_plugin.my_module.MyPlugin" base_class_type="rqt_gui_py::Plugin">
+  <class name="My plugin" type="plugin.my_module.MyPlugin" base_class_type="rqt_gui_py::Plugin">
     <description>
       A Python GUI plugin for test the functionalities.
     </description>
